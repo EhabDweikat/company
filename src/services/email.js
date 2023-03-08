@@ -15,7 +15,7 @@ const nodemailer = require("nodemailer");
   
     // send mail with defined transport object
     let info = await transporter.sendMail({
-      from: `"confirm email" | ehab shop <${process.env.nodeMailerE}>`, // sender address
+      from: `"confirm email" | ehab company <${process.env.nodeMailerE}>`, // sender address
       to: dest, // list of receivers
       subject: subject, // Subject line
       html: message, // html body
