@@ -165,8 +165,8 @@ const forgetPassword = async (req, res) => {
   };
 
   const getUser=async(req,res)=>{
-    let users=await userModel.find();
+   let users=await userModel.find();
     res.json(users);
   }
   
-  module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword,getUserById,getUser };
+  module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword,getUserById,getUser};
