@@ -13,5 +13,8 @@ router.get('/hello',(req,res)=>{
     res.json({message:'hellow word'});
 });
 
+router.get('/getUser',registerController.getUser);
+
+
 
 module.exports=router;

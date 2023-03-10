@@ -163,5 +163,10 @@ const forgetPassword = async (req, res) => {
       res.status(500).json({ message: "catch error", error });
     }
   };
+
+  const getUser=async(req,res)=>{
+    let users=await userModel.find();
+    res.json(users);
+  }
   
-  module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword,getUserById };
+  module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword,getUserById,getUser };
