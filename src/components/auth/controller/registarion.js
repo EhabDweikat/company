@@ -4,38 +4,42 @@ const jwt = require('jsonwebtoken');
 const {sendEmail}=require('../../../services/email');   
 const userModel = require("../../users/user.modules");
 
-const signup=async(req,res)=>{
-    try{
+const signup = async (req, res) => {
+  try {
+      const { name, email, password, confirmPassword, age, country } = req.body;
 
-    
-    const{name,email,password,age,country}=req.body
-    const user=await userModel.findOne({email}).select('email');
-    if (user){
-        res.status(409).json({message:'Email is already exist'});
+      if (password !== confirmPassword) {
+          return res.status(400).json({ message: 'Passwords do not match' });
+      }
 
-    }else{
-        bcrypt.hash(password,parseInt(process.env.SALTROUND) , async function(err, hash) {
-            const newuser= new userModel({name,email,password:hash,age,country});
+      const user = await userModel.findOne({ email }).select('email');
 
-            const token = jwt.sign({ id: newuser._id },process.env.emailToken, { expiresIn: '1h' });
+      if (user) {
+          return res.status(409).json({ message: 'Email is already exist' });
+      }
 
-            const link=`${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`; 
-            const message=`<a href ='${link}'>verify your email <\a>`;
+      bcrypt.hash(password, parseInt(process.env.SALTROUND), async function (err, hash) {
+          const newuser = new userModel({ name, email, password: hash, age, country });
 
-            const info=await sendEmail(email,`confirm Email`,message);
-                 if(info.accepted?.length>0) {
-            const savedUser =await newuser.save();
-            res.status(201).json({message:"Success",savedUser:savedUser._id});
+          const token = jwt.sign({ id: newuser._id }, process.env.emailToken, { expiresIn: '1h' });
 
-                 }else{
-                    res.status(404).json({message:"errror"})
-                 }
-                });
-    }
-}catch(error){
-res.status(500).json({message:"catch error",error});
+          const link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`;
+          const message = `<a href ='${link}'>verify your email <\a>`;
+
+          const info = await sendEmail(email, `confirm Email`, message);
+
+          if (info.accepted?.length > 0) {
+              const savedUser = await newuser.save();
+              res.status(201).json({ message: "Success", savedUser: savedUser._id });
+          } else {
+              res.status(404).json({ message: "error" })
+          }
+      });
+  } catch (error) {
+      res.status(500).json({ message: "catch error", error });
+  }
 }
-}
+
 
 const confirmEmail=async (req,res)=>{
     try {

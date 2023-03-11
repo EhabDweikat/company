@@ -26,6 +26,17 @@ const schema=Schema({
 
     },
 
+    confirmPassword: {
+        type: String,
+        require: [true, 'confirm password is required'],
+        validate: {
+            validator: function (v) {
+                return v === this.password;
+            },
+            message: 'Confirm password must match password',
+        },
+    },
+
     profileImage:{
         type:String,
        
