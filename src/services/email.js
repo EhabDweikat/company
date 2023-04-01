@@ -24,3 +24,4 @@ const nodemailer = require("nodemailer");
     return info;
 }
 module.exports={sendEmail};
+

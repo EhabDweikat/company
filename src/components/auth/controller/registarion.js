@@ -153,24 +153,6 @@ const forgetPassword = async (req, res) => {
     }
   };
 
-  const getUserById = async (req, res) => {
-    try {
-      const userId = req.params.id;
-      const user = await userModel.findById(userId);
-      if (!user) {
-        res.status(404).json({ message: 'User not found' });
-        return;
-      }
-      console.log(user); // This will print the user information to the console
-      res.status(200).json({ message: "User retrieved successfully", user });
-    } catch (error) {
-      res.status(500).json({ message: "catch error", error });
-    }
-  };
-
-  const getUser=async(req,res)=>{
-   let users=await userModel.find();
-    res.json(users);
-  }
+ 
   
-  module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword,getUserById,getUser};
+  module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword};

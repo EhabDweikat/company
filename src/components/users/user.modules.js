@@ -55,6 +55,7 @@ const schema=Schema({
     role:{
         type:String,
         enum:['admin','user'],
+        default:'user'
     },
     isActive:{
         type:Boolean,
