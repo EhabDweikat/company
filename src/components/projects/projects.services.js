@@ -69,8 +69,16 @@ module.exports.creatNewproject = async (req, res) => {
   };
   
 module.exports.getAllProjects=async(req,res)=>{
+    try{
     let categories=await CategoryModel.find({});
-    res.status(200).json(categories);
+    if (categories.length > 0) {
+        return res.status(200).json(categories);
+    } else {
+        return res.status(404).json({ message: 'No  projects found.' });
+    }
+}catch(error){
+    return res.status(500).json({ message: 'Internal server error',error });
+}
 }
 
 module.exports.getProjectid=async(req,res)=>{
@@ -80,17 +88,69 @@ module.exports.getProjectid=async(req,res)=>{
 
 }
 
-module.exports.getPending=async(req,res)=>{
-    let pending=await CategoryModel.find({status: 'pending'});
-    res.status(200).json(pending);
+module.exports.getPending = async (req, res) => {
+    try{
+    let pending = await CategoryModel.find({status: 'pending'});
+
+    if (pending.length > 0) {
+        return res.status(200).json(pending);
+    } else {
+        return res.status(404).json({ message: 'No pending projects found.' });
+    }
+}catch(error){
+    return res.status(500).json({ message: 'Internal server error',error });
+
+
+}
 }
 
-module.exports.getoverdue=async(req,res)=>{
-    let pending=await CategoryModel.find({status: 'overdue'});
-    res.status(200).json(pending);
+module.exports.getOverdue = async (req, res) => {
+    try{
+    let overdue=await CategoryModel.find({status: 'overdue'});
+    if (overdue.length > 0) {
+        return res.status(200).json(overdue);
+    } else {
+        return res.status(404).json({ message: 'No overdue projects found.' });
+    }
+}catch(error){
+    return res.status(500).json({ message: 'Internal server error',error });
+
+
+}
 }
 
-module.exports.getcompleted=async(req,res)=>{
+
+
+module.exports.getCompleted = async (req, res) => {
+    try{
     let completed=await CategoryModel.find({status: 'completed'});
-    res.status(200).json(completed);
+    if (completed.length > 0) {
+        return res.status(200).json(completed);
+    } else {
+        return res.status(404).json({ message: 'No completed projects found.' });
+    }
 }
+    catch(error){
+        return res.status(500).json({ message: 'Internal server error',error });
+    
+    
+    }
+}
+
+module.exports.updateProject = async (req, res) => {
+    const { id } = req.params;
+    const { name, description, status } = req.body;
+
+    try {
+        const project = await CategoryModel.findByIdAndUpdate(id, { name, description, status }, { new: true });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found.' });
+        }
+
+        res.status(200).json(project);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};
