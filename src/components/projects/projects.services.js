@@ -154,3 +154,22 @@ module.exports.updateProject = async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
+
+
+
+module.exports.getbyName = async (req, res) => {
+    const name=req.params.name;
+
+    try {
+        const project = await CategoryModel.findOne({ name: req.params.name });
+        if (!project) {
+          return res.status(404).json({ message: "Project not found" });
+        }
+    
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${project.media}`;
+    
+        return res.status(200).json({ message: "Project found", project: { ...project.toObject(), imageUrl } });
+      } catch (err) {
+        return res.status(500).json({ message: err.message });
+      }
+}
