@@ -1,6 +1,4 @@
-
 const{Schema,model}=require('mongoose');
-
 const schema=Schema({
     name:{
         type:String,
@@ -49,6 +47,6 @@ const schema=Schema({
      type: Number, required: true 
     },
   materials: [{ type: String }],
-        
+  
 },{timestamps:true});
-module.exports=model('project',schema);
+module.exports=model('Details',schema);
