@@ -34,21 +34,7 @@ const schema=Schema({
          type: Date, 
          default: Date.now 
         },
-        company: {
-        type: String, required: true 
-            },
-
-  staff:{
-  type: String,
-  enum: ['Worker', 'Engineering', 'Contractor'],
-  required: true
-
-},
-  
-  price: {
-     type: Number, required: true 
-    },
-  materials: [{ type: String }],
+        
         
 },{timestamps:true});
 module.exports=model('project',schema);

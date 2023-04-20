@@ -10,6 +10,9 @@ var morgan = require('morgan')
 app.use(express.json());
 app.use('/projects',require('./src/components/projects/projects.api'));
 app.use('/Details',require('./src/components/subcategory/subProject.api'));
+app.use('/Equipment',require('./src/components/equpiment/equipment.api'));
+app.use('/Reservation',require('./src/components/reservation/reservation.api'));
+
 
 app.use(`${basURL}/auth`,require('./src/components/auth/auth.api'))
 app.use('/uploads', express.static('uploads'));
