@@ -4,8 +4,7 @@ const schema=Schema({
         type:String,
         require:[true,'category name is require'],
         trim:true,
-        unique:[true,'category name is unique'],
-        minlength:[2,'too short category name']
+        minlength: [2,'too short category name']
     },
     media:{
         type: String,
@@ -38,7 +37,7 @@ const schema=Schema({
 
   staff:{
   type: String,
-  enum: ['Worker', 'Engineering', 'Contractor'],
+
   required: true
 
 },
@@ -47,6 +46,11 @@ const schema=Schema({
      type: Number, required: true 
     },
   materials: [{ type: String }],
+
+  ProjecctNumber:{
+    type:Number,
+    required:true,
+  },
   
 },{timestamps:true});
 module.exports=model('Details',schema);

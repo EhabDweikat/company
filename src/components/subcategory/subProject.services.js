@@ -11,30 +11,13 @@ const storage = multer.diskStorage({
     }
 });
 
-function checkFileType(file, cb) {
-    // Allowed file extensions
-    const filetypes = /jpeg|jpg|png|gif/;
-
-    // Check file extension
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-
-    // Check mime type
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-        return cb(null, true);
-    } else {
-        return cb('Error: Images Only!');
-    }
-}
+//
 
 // Initialize multer upload object
 const upload = multer({
     storage: storage,
     limits: { fileSize: 1000000 }, // Max file size 1 MB
-    fileFilter: function (req, file, cb) {
-        checkFileType(file, cb);
-    }
+    //
 }).single('media');
 
 module.exports.AddWorker = async (req, res) => {
@@ -48,7 +31,7 @@ module.exports.AddWorker = async (req, res) => {
       try {
         const existingworker = await SubProject.findOne({ name: req.body.name });
         if (existingworker) {
-          return res.status(400).json({ message: "worker and the same details  already exists", project: existingworker });
+          return res.status(400).json({ message: "WORKER WITH SAME NAME ALREDY EXISIT", project: existingworker });
         }
   
         const newProject = new SubProject({
@@ -60,10 +43,12 @@ module.exports.AddWorker = async (req, res) => {
                 price:req.body.price,
                 materials:req.body.materials,
                 media: req.file.filename,
+                ProjecctNumber:req.body.ProjecctNumber,
+                
         });
   
         const savedworker = await newProject.save();
-        return res.status(201).json({ message: "Details Of The Project Added Succsfully", project: savedworker });
+        return res.status(201).json({ message: " Details Of The Project Added Succsfully ", project: savedworker });
       } catch (err) {
         return res.status(500).json({ message: err.message });
       }
@@ -92,7 +77,7 @@ module.exports.getWorkerbyName = async (req, res) => {
     const name=req.params.name;
 
     try {
-        const project = await SubProject.findOne({ name: req.params.name });
+        const project = await SubProject.findOne({ ProjecctNumber: req.params.ProjecctNumber });
         if (!project) {
           return res.status(404).json({ message: "Worker Not found" });
         }
@@ -122,3 +107,17 @@ module.exports.deleteWorker = async (req, res) => {
     }
   };
 
+  module.exports.GetDetails= async (req,res)=>{
+    try{
+        const DetailsProject= await SubProject.find({ProjecctNumber: req.params.ProjecctNumber });
+        if(!DetailsProject){
+            return res.status(404).json({message:'There is no details'})
+        }else{
+            return res.status(201).json({DetailsProject})
+        }
+    }catch(error){
+        return res.status(500).json({ message: 'Internal server error',error });
+    
+    }
+    }
+    
