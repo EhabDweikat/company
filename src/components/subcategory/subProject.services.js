@@ -94,6 +94,7 @@ module.exports.deleteWorker = async (req, res) => {
     const name = req.params.name;
   
     try {
+      
       const deletedWorker = await SubProject.findOneAndDelete({ name });
   
       if (!deletedWorker) {

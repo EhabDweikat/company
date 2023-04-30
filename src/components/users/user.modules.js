@@ -22,7 +22,7 @@ const schema=Schema({
     password:{
         type:String,
         require:[true,'password is require'],
-        minlength:[6,'too short user name'],
+        minlength:[6,'too short password'],
 
     },
 

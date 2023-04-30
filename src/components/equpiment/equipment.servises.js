@@ -89,7 +89,9 @@ try{
     if(!DetailsEquipment){
         return res.status(404).json({message:'There is no Equipment'})
     }else{
-        return res.status(201).json({DetailsEquipment})
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${DetailsEquipment.media}`;
+            
+        return res.status(201).json({message:'The Specific details Founded',DetailsEquipment:{ ...DetailsEquipment.toObject(), imageUrl }})
     }
 }catch(error){
     return res.status(500).json({ message: 'Internal server error',error });

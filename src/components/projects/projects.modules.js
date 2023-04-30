@@ -4,9 +4,9 @@ const{Schema,model}=require('mongoose');
 const schema=Schema({
     name:{
         type:String,
-        require:[true,'category name is require'],
+        require:[true,'project name is require'],
         trim:true,
-        unique:[true,'category name is unique'],
+        unique:[true,'project name is unique'],
         minlength:[2,'too short category name']
     },
     media:{
