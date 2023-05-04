@@ -14,6 +14,9 @@ app.use('/Equipment',require('./src/components/equpiment/equipment.api'));
 app.use('/Reservation',require('./src/components/reservation/reservation.api'));
 app.use('/Materials',require('./src/components/materialsAndReview/materials.api'));
 app.use('/Chart',require('./src/components/BuyAddToChart/Chart.api'));
+app.use('/Recommandation',require('./src/components/Recomandation/Recomandation.api'));
+app.use('/Worker',require('./src/components/WorkerAndTask/Worker.api'));
+
 
 
 

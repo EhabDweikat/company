@@ -93,7 +93,8 @@ try{
             
         return res.status(201).json({message:'The Specific details Founded',DetailsEquipment:{ ...DetailsEquipment.toObject(), imageUrl }})
     }
-}catch(error){
+}catch
+(error){
     return res.status(500).json({ message: 'Internal server error',error });
 
 }

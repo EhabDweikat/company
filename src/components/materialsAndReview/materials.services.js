@@ -1,7 +1,9 @@
 const path = require('path');
 const multer = require('multer');
+
 //const materialsModule=require('./materilas.module');
-const { Material, Review } = require('./materilas.module');
+const { Material, Review,Category } = require('./materilas.module');
+
 
 
 
@@ -41,39 +43,6 @@ const upload = multer({
     }
 }).single('media');
 
-// Function to create a new project
-module.exports.AddNewMaterial = async (req, res) => {
-    upload(req, res, async function (err) {
-      if (err instanceof multer.MulterError) {
-        return res.status(500).json({ message: err.message });
-      } else if (err) {
-        return res.status(500).json({ message: err });
-      }
-  
-      try {
-        const existingMaterials = await Material.findOne({ name: req.body.name });
-        if (existingMaterials) {
-          return res.status(400).json({ message: "Material with the same name already exists", Material: existingMaterials });
-        }
-  
-        const newMaterial = new Material({
-            name: req.body.name,
-            description: req.body.description,
-            price: req.body.price,
-            stock: req.body.stock,
-            unit:req.body.unit,
-            media:req.file.filename,
-            reviews: [],
-
-        });
-  
-        const savedMaterial = await newMaterial.save();
-        return res.status(201).json({ message: "Material Add successfully", Material: savedMaterial });
-      } catch (err) {
-        return res.status(500).json({ message: err.message });
-      }
-    });
-  };
 
 
 module.exports.GetAllMaterials=async(req,res)=>{
@@ -176,5 +145,153 @@ module.exports.makeReview = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+
+module.exports.Categorys = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    if (categories.length === 0){
+      return res.status(404).json({message:'There are no categories found'});
+    } else {
+      const categoriesWithImageUrls = categories.map(category => {
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${category.media}`;
+
+        return {
+          name: category.name,
+          imageUrl: imageUrl
+        }
+      });
+      return res.status(200).json({ message: 'Categories found', categories: categoriesWithImageUrls });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+module.exports.GetMaterialCategory = async (req, res) => {
+  const { categoryName } = req.params;
+  try {
+    const category = await Category.findOne({ name: categoryName });
+    if (!category){
+      return res.status(404).json({message:'There is no category founded'});
+    }else{
+      const materials = await Material.find({ category: category._id });
+      const materialsWithImageUrls = materials.map(material => {
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${material.media}`;
+        return {
+          ...material.toObject(),
+          imageUrl
+        };
+      });
+      return res.status(200).json({message:'The Materials belonging to the category are found', materials: materialsWithImageUrls});
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+
+// Function to create a new materila
+module.exports.AddNewMaterial = async (req, res) => {
+  upload(req, res, async function (err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json({ message: err.message });
+    } else if (err) {
+      return res.status(500).json({ message: err });
+    }
+
+    try {
+      const existingMaterial = await Material.findOne({ name: req.body.name });
+      if (existingMaterial) {
+        return res.status(400).json({ message: "Material with the same name already exists", Material: existingMaterial });
+      }
+
+      const category = await Category.findOne({ name: req.body.categoryName });
+      if (!category) {
+        return res.status(400).json({ message: "Category not found" });
+      }
+
+      const newMaterial = new Material({
+          name: req.body.name,
+          description: req.body.description,
+          price: req.body.price,
+          stock: req.body.stock,
+          unit:req.body.unit,
+          media:req.file.filename,
+          category: category._id, // Add the category ID to the material object
+          reviews: [],
+      });
+
+      const savedMaterial = await newMaterial.save();
+      return res.status(201).json({ message: "Material Add to its specific category successfully", Material: savedMaterial });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  });
+};
+
+
+module.exports.AddCategory = async (req, res) => {
+  upload(req, res, async function (err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json({ message: err.message });
+    } else if (err) {
+      return res.status(500).json({ message: err });
+    }
+
+    try {
+      const existingCategory = await Category.findOne({ name: req.body.name });
+      if (existingCategory) {
+        return res.status(400).json({ message: "Category with the same name already exists", Categoryies: existingCategory });
+      }
+
+      const newCategory = new Category({
+          name: req.body.name,
+          media:req.file.filename,
+
+      });
+
+      const savedCategory = await newCategory.save();
+      return res.status(201).json({ message: " category Add  successfully", categories: savedCategory });
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  });
+};
+
+
+module.exports.GetMaterialByName = async (req, res) => {
+  const { name } = req.params;
+  try {
+    const material = await Material.findOne({ name });
+    if (!material){
+      return res.status(404).json({message:'No material found with that name'});
+    }else{
+      const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${material.media}`;
+    
+      return res.status(200).json({message:'Material found',material:{ ...material.toObject(), imageUrl }})
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+module.exports.GetCategoryByName = async (req, res) => {
+  const { name } = req.params;
+  try {
+    const OneCategory = await Category.findOne({ name });
+    if (!OneCategory){
+      return res.status(404).json({message:'No Category found with that name'});
+    }else{
+      const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${OneCategory.media}`;
+    
+      return res.status(200).json({message:'Category found',OneCategory:{ ...OneCategory.toObject(), imageUrl }})
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 
