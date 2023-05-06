@@ -45,18 +45,23 @@ const upload = multer({
 
 
 
-module.exports.GetAllMaterials=async(req,res)=>{
-    try{
-        const ShowMaterial=await Material.find({});
-        if(ShowMaterial.length>0){
-            return res.status(201).json({message:'The materials Founded',ShowMaterial});
-        }else{
-            return res.status(404).json({message:'There is No Materials Founded '})
-        }
-    }catch(error){
-        return res.status(500).json({ message: 'Internal server error',error });
+module.exports.GetAllMaterials = async (req, res) => {
+  try {
+    const materials = await Material.find({});
+    if (materials.length > 0) {
+      const materialsWithImageUrl = materials.map(material => {
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${material.media}`;
+        return { ...material.toObject(), imageUrl };
+      });
+      return res.status(200).json({ message: 'Materials found', materials: materialsWithImageUrl });
+    } else {
+      return res.status(404).json({ message: 'No materials found' });
     }
-}
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
 
 module.exports.GetSpecificMaterialByid=async(req,res)=>{
     try{
@@ -139,7 +144,7 @@ module.exports.makeReview = async (req, res) => {
   const { userId, rating, comment } = req.body;
 
   try {
-    const review = await this.addMaterialReviews(id, userId, rating, comment);
+    const review = await addMaterialReviews(id, userId, rating, comment);
     res.status(201).json({ review });
   } catch (error) {
     res.status(400).json({ error: error.message });
