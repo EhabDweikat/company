@@ -6,7 +6,7 @@ const userModel = require("../../users/user.modules");
 
 const signup = async (req, res) => {
   try {
-      const { name, email, password, confirmPassword, age, country } = req.body;
+      const { name, email, password, confirmPassword, age, country,balance } = req.body;
 
       if (password !== confirmPassword) {
           return res.status(400).json({ message: 'Passwords do not match' });
@@ -19,7 +19,7 @@ const signup = async (req, res) => {
       }
 
       bcrypt.hash(password, parseInt(process.env.SALTROUND), async function (err, hash) {
-          const newuser = new userModel({ name, email, password: hash, age, country });
+          const newuser = new userModel({ name, email, password: hash, age, country,balance });
 
           const token = jwt.sign({ id: newuser._id }, process.env.emailToken, { expiresIn: '1h' });
 

@@ -63,3 +63,53 @@ module.exports.BuyMaterila= async (req, res) => {
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  module.exports.checkout = async (req, res) => {
+    try {
+      // Find the user's cart
+      const cart = await Cart.findOne({ user: req.params.userId }).populate('items.material');
+      if (!cart) {
+        return res.status(404).json({ message: 'Cart not found' });
+      }
+      
+      // Calculate the total cost of the order
+      const totalCost = cart.items.reduce((total, item) => {
+        return total + (item.material.price * item.quantity);
+      }, 0);
+      
+      // Check that the user has enough funds to complete the order
+      const user = await User.findById(req.params.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      if (user.balance < totalCost) {
+        return res.status(400).json({ message: 'Insufficient funds' });
+      }
+      
+      // Deduct the total cost from the user's balance
+      user.balance -= totalCost;
+      await user.save();
+      
+      // Decrease the stock of each material in the cart
+      for (const item of cart.items) {
+        const material = item.material;
+        const updatedStock = material.stock - item.quantity;
+        if (updatedStock < 0) {
+          return res.status(400).json({ message: 'Not enough stock' });
+        }
+        material.stock = updatedStock;
+        await material.save();
+      }
+      
+      // Clear the user's cart
+      cart.items = [];
+      await cart.save();
+      
+      return res.json({ message: 'Order completed successfully' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
+  

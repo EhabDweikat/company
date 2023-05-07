@@ -50,6 +50,7 @@ exports.getRecommendedMaterials = async (req, res) => {
         id: material._id,
         name: material.name,
         price: material.price,
+        description: material.description,
         imageUrl: `${req.protocol}://${req.get('host')}/uploads/${material.media}`
       }
     }));

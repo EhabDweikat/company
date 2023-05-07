@@ -67,7 +67,12 @@ const schema=Schema({
     verified:{
         type:Boolean,
         default:false,
-    }
+    },
+
+    balance: {
+        type: Number,
+        required: true,
+      },
 
 },{timestamps:true});
 module.exports=model('user',schema);
