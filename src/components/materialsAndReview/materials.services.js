@@ -118,8 +118,21 @@ module.exports.DeleteMaterial = async (req, res) => {
   };
 
 
-  // Function to add a review to a material
-module.exports.addMaterialReviews = async (materialId, userId, rating, comment) => {
+  // Function to get all reviews for a material
+module.exports.getMaterialReviews = async (materialId) => {
+  try {
+    const material = await Material.findById(materialId).populate('reviews');
+    if (!material) {
+      throw new Error('Material not found');
+    }
+    return material.reviews;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Function to add a review to a material
+module.exports.addMaterialReview = async (materialId, userId, rating, comment) => {
   try {
     const material = await Material.findById(materialId);
     if (!material) {
@@ -138,18 +151,33 @@ module.exports.addMaterialReviews = async (materialId, userId, rating, comment) 
   }
 };
 
+// Controller function to get all reviews for a material
+module.exports.getMaterialReviewsController = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const reviews = await this.getMaterialReviews(id);
+    res.status(200).json({ reviews });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Controller function to add a review to a material
-module.exports.makeReview = async (req, res) => {
+module.exports.addMaterialReviewController = async (req, res) => {
   const { id } = req.params;
   const { userId, rating, comment } = req.body;
 
   try {
-    const review = await addMaterialReviews(id, userId, rating, comment);
+    const review = await this.addMaterialReview(id, userId, rating, comment);
     res.status(201).json({ review });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
+
+
 
 
 module.exports.Categorys = async (req, res) => {
@@ -300,3 +328,25 @@ module.exports.GetCategoryByName = async (req, res) => {
 }
 
 
+module.exports.updateMaterialReview = async (req, res) => {
+  const {materialId,reviewId}=req.params
+  const {  userId, rating, comment } = req.body;
+
+  try {
+    const review = await Review.findOneAndUpdate(
+      { _id: reviewId, user: userId },
+      { rating, comment },
+      { new: true }
+    );
+
+    if (!review) {
+      throw new Error('Review not found or you do not have permission to update it');
+    }
+
+    
+
+    res.status(200).json({ review });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};

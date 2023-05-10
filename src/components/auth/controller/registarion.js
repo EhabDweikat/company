@@ -2,7 +2,7 @@
 const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {sendEmail}=require('../../../services/email');   
-const userModel = require("../../users/user.modules");
+const userModel = require ("../../users/user.modules");
 
 const signup = async (req, res) => {
   try {

@@ -2,6 +2,8 @@
 
 const { Material, Review }  = require('../materialsAndReview/materilas.module');
 const Cart = require('./Chart.module');
+const userModel = require ("../users/user.modules");
+
 
 module.exports.addToCart = async (userId, materialId, quantity) => {
     const material = await Material.findOne({ _id: materialId });
@@ -78,7 +80,7 @@ module.exports.BuyMaterila= async (req, res) => {
       }, 0);
       
       // Check that the user has enough funds to complete the order
-      const user = await User.findById(req.params.userId);
+      const user = await userModel.findById(req.params.userId);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
