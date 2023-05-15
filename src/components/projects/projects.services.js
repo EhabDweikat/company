@@ -12,29 +12,29 @@ const storage = multer.diskStorage({
     }
 });
 
-//function checkFileType(file, cb) {
-    // Allowed file extensions
-    //const filetypes = /jpeg|jpg|png|gif/;
+function checkFileType(file, cb) {
+     //Allowed file extensions
+    const filetypes = /jpeg|jpg|png|gif/;
 
     // Check file extension
-    //const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
-    // Check mime type
-   // const mimetype = filetypes.test(file.mimetype);
+      //Check mime type
+   const mimetype = filetypes.test(file.mimetype);
 
-   // if (extname && mimetype) {
-        //return cb(null, true);
-   // } else {
-        //return cb('Error: Images Only!');
-  //  }
-//}
+    if (extname && mimetype) {
+        return cb(null, true);
+    } else {
+        return cb('Error: Images Only!');
+   }
+}
 
 // Initialize multer upload object
 const upload = multer({
     storage: storage,
     limits: { fileSize: 1000000 }, // Max file size 1 MB
     fileFilter: function (req, file, cb) {
-        //checkFileType(file, cb);
+        checkFileType(file, cb);
     }
 }).single('media');
 
@@ -55,9 +55,9 @@ module.exports.creatNewproject = async (req, res) => {
   
         const newProject = new CategoryModel({
             name: req.body.name,
-          description: req.body.description,
-          status: req.body.status,
-          media: req.file.filename,
+            description: req.body.description,
+            status: req.body.status,
+            media: req.file.filename,
         });
   
         const savedProject = await newProject.save();

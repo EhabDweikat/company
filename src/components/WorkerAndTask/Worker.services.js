@@ -1,4 +1,5 @@
-const {Task,Worker,Attendance,Salary}=require('./Worker.module');
+const {Task,Worker,Attendance,Salary}= require('./Worker.module');
+const Project= require('../projects/projects.modules');
 
 const path = require('path');
 const multer = require('multer');
@@ -79,17 +80,23 @@ module.exports.AddWorker = async (req, res) => {
   };
   
   module.exports.addTask = async (req, res) => {
-    const { workerId } = req.params;
+    const { workerId, projectId } = req.params;
     const { description, status, startTime, endTime, reward, discount } = req.body;
   
     try {
       const worker = await Worker.findById(workerId);
       if (!worker) {
-        return res.status(404).json({message:"Worker Not Founded"});
+        return res.status(404).json({ message: "Worker Not Found" });
+      }
+  
+      const project = await Project.findById(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project Not Found" });
       }
   
       const task = new Task({
         worker: worker._id,
+        project:project._id,
         description,
         status,
         startTime,
@@ -100,12 +107,26 @@ module.exports.AddWorker = async (req, res) => {
   
       await task.save();
   
+      project.tasks.push(task);
+  
+      const totalTasks = project.tasks.length;
+      const completedTasks = project.tasks.filter(task =>task.status === 'completed').length;
+      const percentageCompleted = Math.floor((completedTasks / totalTasks) * 100);
+  
+      if (percentageCompleted >= 60) {
+        project.status = 'completed';
+      } else {
+        project.status = 'in progress';
+      }
+  
+      await project.save();
+  
       res.status(201).json({ task });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   };
-
+  
   module.exports.getWorkerTasks = async (req, res) => {
     const { workerId } = req.params;
   
@@ -121,11 +142,11 @@ module.exports.AddWorker = async (req, res) => {
 
   module.exports.updateTaskStatus = async (req, res) => {
     const {  status } = req.body;
-    const { workerId,taskId } = req.params;
+    const { projectId,workerId,taskId } = req.params;
   
     try {
       const task = await Task.findOneAndUpdate(
-        { _id: taskId, worker: workerId },
+        { _id: taskId, worker: workerId, project: projectId },
         { status },
         { new: true }
       );

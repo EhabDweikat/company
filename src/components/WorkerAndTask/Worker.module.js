@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const Project= require('../projects/projects.modules')
 const workerSchema = new mongoose.Schema({
     name: {
       type: String,
@@ -30,7 +30,7 @@ const workerSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-    
+
     media: {
         type: String,
         default: null
@@ -68,6 +68,11 @@ const taskSchema = new mongoose.Schema({
       ref: 'Worker',
       required: true,
     },
+    project: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Project',
+        required: true,
+      },
     description: {
       type: String,
       required: true,
@@ -126,4 +131,4 @@ const taskSchema = new mongoose.Schema({
   const Salary = mongoose.model('Salary', salarySchema);
   const Attendance = mongoose.model('Attendance', attendanceSchema);
   
-  module.exports = { Worker, Task, Salary, Attendance };
+  module.exports =  { Worker, Task, Salary, Attendance };

@@ -1,5 +1,7 @@
 const{Schema,model}=require('mongoose');
 
+const { Task } = require('../WorkerAndTask/Worker.module');
+
 const schema=Schema({
     name:{
         type:String,
@@ -22,7 +24,7 @@ const schema=Schema({
       },
       status: {
         type: String,
-        enum: ['pending', 'overdue', 'completed'],
+        enum: ['pending', 'overdue', 'completed','in progress','not started'],
         required: true
       },
       createdAt: {
@@ -33,6 +35,11 @@ const schema=Schema({
          type: Date, 
          default: Date.now 
         },
+        tasks: [{
+          type: Schema.Types.ObjectId,
+          ref: Task
+      }]
+       
         
         
         
