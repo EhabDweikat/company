@@ -89,14 +89,14 @@ module.exports.AddWorker = async (req, res) => {
         return res.status(404).json({ message: "Worker Not Found" });
       }
   
-      const project = await Project.findById(projectId);
+      const project = await Project.findById(projectId).populate('tasks');
       if (!project) {
         return res.status(404).json({ message: "Project Not Found" });
       }
   
       const task = new Task({
         worker: worker._id,
-        project:project._id,
+        project: project._id,
         description,
         status,
         startTime,
@@ -110,10 +110,13 @@ module.exports.AddWorker = async (req, res) => {
       project.tasks.push(task);
   
       const totalTasks = project.tasks.length;
-      const completedTasks = project.tasks.filter(task =>task.status === 'completed').length;
+      const completedTasks = project.tasks.filter(task => task.status === 'completed').length;
+      console.log(completedTasks);
+
       const percentageCompleted = Math.floor((completedTasks / totalTasks) * 100);
-          console.log(percentageCompleted);
-      if (percentageCompleted >= 60) {
+      console.log(percentageCompleted);
+  
+      if (percentageCompleted >= 80) {
         project.status = 'completed';
       } else {
         project.status = 'in progress';
@@ -126,6 +129,7 @@ module.exports.AddWorker = async (req, res) => {
       res.status(400).json({ error: error.message });
     }
   };
+  
   
   module.exports.getWorkerTasks = async (req, res) => {
     const { workerId } = req.params;
