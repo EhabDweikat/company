@@ -112,7 +112,7 @@ module.exports.AddWorker = async (req, res) => {
       const totalTasks = project.tasks.length;
       const completedTasks = project.tasks.filter(task =>task.status === 'completed').length;
       const percentageCompleted = Math.floor((completedTasks / totalTasks) * 100);
-  
+          console.log(percentageCompleted);
       if (percentageCompleted >= 60) {
         project.status = 'completed';
       } else {
@@ -274,4 +274,27 @@ module.exports.AddWorker = async (req, res) => {
       
         return res.json({ salaryHistory });
       };
+
+      module.exports.getALLWorker = async (req, res) => {
+        try {
+          const workers = await Worker.find({});
+      
+          if (!workers) {
+            return res.status(404).json({ message: 'There are no workers in your company' });
+          } else {
+            const workersWithImageUrl = workers.map(worker => {
+              const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${worker.media}`;
+              return {
+                ...worker.toObject(),
+                imageUrl
+              };
+            });
+      
+            return res.status(200).json({ message: 'Here are all the workers', workers: workersWithImageUrl });
+          }
+        } catch (error) {
+          return res.status(500).json({ message: 'Internal server error', error: error.message });
+        }
+      };
+      
       

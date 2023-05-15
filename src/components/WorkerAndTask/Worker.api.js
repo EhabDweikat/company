@@ -9,6 +9,7 @@ router.put('/:projectId/:workerId/tasks/:taskId', WorkerServises.updateTaskStatu
 router.post('/AddAttendance',WorkerServises.addAttendance);
 router.get('/ShowAttendance/:workerId', WorkerServises.showAttendance);
 router.get('/ShowSalaryHistory/:workerId', WorkerServises.getSalaryHistoryForWorker);
+router.get('/GetAllWorker', WorkerServises.getALLWorker);
 
 
 
