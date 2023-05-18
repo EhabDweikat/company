@@ -300,5 +300,22 @@ module.exports.AddWorker = async (req, res) => {
           return res.status(500).json({ message: 'Internal server error', error: error.message });
         }
       };
+
+      // Function to get all tasks for a specific project
+module.exports.getProjectTasks = async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const project = await Project.findById(projectId).populate('tasks');
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const tasks = project.tasks;
+    res.status(200).json({ tasks });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
       
       
