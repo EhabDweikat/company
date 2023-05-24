@@ -1,5 +1,7 @@
 const {Task,Worker,Attendance,Salary}= require('./Worker.module');
 const Project= require('../projects/projects.modules');
+const mongoose=require('mongoose');
+
 
 const path = require('path');
 const multer = require('multer');
@@ -145,26 +147,31 @@ module.exports.AddWorker = async (req, res) => {
   };
 
   module.exports.updateTaskStatus = async (req, res) => {
-    const {  status } = req.body;
-    const { projectId,workerId,taskId } = req.params;
+    const { status } = req.body;
+    const { taskId } = req.params;
   
     try {
-      const task = await Task.findOneAndUpdate(
-        { _id: taskId, worker: workerId, project: projectId },
+      const task = await Task.findByIdAndUpdate(
+        taskId,
         { status },
         { new: true }
       );
-      
+  
       if (!task) {
         return res.status(404).json({ error: 'Task not found' });
       }
   
-      res.json({ message:'The Status of your Tasked Changed Sucss' });
+      // Update task status for the project
+      await Project.findOneAndUpdate(
+        { tasks: taskId },
+        { $set: { 'tasks.$.status': status } }
+      );
+  
+      res.json({ message: 'The status of the task has been successfully updated' });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   };
-
   module.exports.addAttendance = async (req, res) => {
         const { workerId, date, present } = req.body;
         
