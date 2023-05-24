@@ -334,5 +334,29 @@ module.exports.getProjectTasks = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+module.exports.deleteTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+
+    if (!deletedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    } else {
+      // Remove the task from the project's task array
+      const project = await Project.findOneAndUpdate(
+        { tasks: taskId },
+        { $pull: { tasks: taskId } },
+        { new: true }
+      );
+
+      return res.status(200).json({ message: 'Task deleted successfully' });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
       
       
