@@ -177,35 +177,41 @@ module.exports.addTask = async (req, res) => {
     }
   };
   module.exports.addAttendance = async (req, res) => {
-        const { workerId, date, present } = req.body;
-        
-        try {
-          // create a new attendance record
-          const attendance = new Attendance({
-            worker: workerId,
-           date,
-            present
-          }) 
-          await attendance.save();
-
-          
-          // add the attendance record to the worker's attendance array
-          const worker = await Worker.findByIdAndUpdate(
-            workerId,
-            { $push: { attendance: attendance } },
-            { new: true }
-          );
-          
-          return res.status(200).json({
-            message: 'Attendance added successfully',
-            attendance,
-            worker
-          });
-          
-        } catch (error) {
-          return res.status(500).json({message: 'Failed to add attendance',error: error.message});
-        }
-      };
+    const { workerId, date, present } = req.body;
+  
+    try {
+      // Check if attendance record for the same date already exists
+      const existingAttendance = await Attendance.findOne({ date: date });
+  
+      if (existingAttendance) {
+        return res.status(400).json({ message: 'Attendance for this date already exists' });
+      }
+  
+      // Create a new attendance record
+      const attendance = new Attendance({
+        worker: workerId,
+        date,
+        present
+      });
+      await attendance.save();
+  
+      // Add the attendance record to the worker's attendance array
+      const worker = await Worker.findByIdAndUpdate(
+        workerId,
+        { $push: { attendance: attendance } },
+        { new: true }
+      );
+  
+      return res.status(200).json({
+        message: 'Attendance added successfully',
+        attendance,
+        worker
+      });
+    } catch (error) {
+      return res.status(500).json({ message: 'Failed to add attendance', error: error.message });
+    }
+  };
+  
 
       module.exports.showAttendance = async (req, res) => {
         const { workerId } = req.params;
