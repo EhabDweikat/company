@@ -35,7 +35,14 @@ const workerSchema = new mongoose.Schema({
         type: String,
         default: null
       },
-
+      latitude: {
+        type: Number, // Latitude field added
+        required: true,
+      },
+      longitude: {
+        type: Number, // Longitude field added
+        required: true,
+      } 
 
   });
   
@@ -99,6 +106,16 @@ const taskSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+
+    latitude: {
+      type: Number, // Latitude field added
+      required: true,
+    },
+    longitude: {
+      type: Number, // Longitude field added
+      required: true,
+    },
+
     createdAt: {
       type: Date,
       default: Date.now,

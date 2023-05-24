@@ -37,7 +37,7 @@ const schema=Schema({
         },
         tasks: [{
           type: Schema.Types.ObjectId,
-          ref: 'Task' ,
+          ref: Task ,
       }]
        
         
