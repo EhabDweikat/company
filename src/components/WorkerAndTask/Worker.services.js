@@ -84,8 +84,8 @@ module.exports.AddWorker = async (req, res) => {
 };
 
 module.exports.addTask = async (req, res) => {
-  const { workerId, projectId } = req.params;
-  const { description, status, startTime, endTime, reward, discount, latitude, longitude } = req.body;
+  const { workerId } = req.params;
+  const { name,description, status, startTime, endTime, reward, discount, latitude, longitude } = req.body;
 
   try {
     const worker = await Worker.findById(workerId);
@@ -93,7 +93,7 @@ module.exports.addTask = async (req, res) => {
       return res.status(404).json({ message: "Worker Not Found" });
     }
 
-    const project = await Project.findById(projectId).populate('tasks');
+    const project = await Project.findOne({name}).populate('tasks');
     if (!project) {
       return res.status(404).json({ message: "Project Not Found" });
     }

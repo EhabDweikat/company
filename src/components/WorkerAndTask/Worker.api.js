@@ -3,7 +3,7 @@ const WorkerServises = require('./Worker.services');
 const router=require('express').Router();
 
 router.post('/AddWorker',WorkerServises.AddWorker);
-router.post('/AddTask/:workerId/:projectId',WorkerServises.addTask);
+router.post('/AddTask/:workerId',WorkerServises.addTask);
 router.get('/tasks/:workerId', WorkerServises.getWorkerTasks);
 router.put('/:taskId', WorkerServises.updateTaskStatus);
 router.post('/AddAttendance',WorkerServises.addAttendance);
