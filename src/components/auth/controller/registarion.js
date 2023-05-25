@@ -45,33 +45,30 @@ const signup = async (req, res) => {
 
 const confirmEmail = async (req, res) => {
   try {
-    const { token } = req.query;
-    const decoded = jwt.verify(token, process.env.emailToken);
-    if (!decoded.id) {
-      res.status(400).json({ message: 'Invalid payload' });
-    } else {
-      const user = await userModel.findOneAndUpdate(
-        {
-          _id: decoded.id,
-          verified: false,
-          verificationCode: req.body.verificationCode, // Add verification code check
-        },
-        {
-          verified: true,
-        }
-      );
-      if (user) {
-        res.status(200).json({ message: 'Email verified successfully' });
-        // Redirect to the login page or any other desired URL
-          return res.redirect(process.env.FURL);
-      } else {
-        res.status(404).json({ message: 'User not found or verification code is incorrect' });
+    const { verificationCode } = req.body;
+
+    const user = await userModel.findOneAndUpdate(
+      {
+        verified: false,
+        verificationCode: verificationCode, // Updated to use the verification code from the request body
+      },
+      {
+        verified: true,
       }
+    );
+
+    if (user) {
+      res.status(200).json({ message: 'Email verified successfully' });
+      // Redirect to the login page or any other desired URL
+      return res.redirect(process.env.FURL);
+    } else {
+      res.status(404).json({ message: 'User not found or verification code is incorrect' });
     }
   } catch (error) {
     res.status(500).json({ message: 'catch error', error });
   }
 };
+
 
 const generateVerificationCode = () => {
   const code = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
