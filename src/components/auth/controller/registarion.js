@@ -45,7 +45,7 @@ const signup = async (req, res) => {
 
 const confirmEmail = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { token } = req.query;
     const decoded = jwt.verify(token, process.env.emailToken);
     if (!decoded.id) {
       res.status(400).json({ message: 'Invalid payload' });

@@ -116,11 +116,12 @@ module.exports.addTask = async (req, res) => {
     project.tasks.push(task);
 
     const totalTasks = project.tasks.length;
+    console.log({message:'totalTasks',totalTasks});
     const completedTasks = project.tasks.filter(task => task.status === 'completed').length;
-    console.log(completedTasks);
+    console.log({message:'completedTasks',completedTasks});
 
     const percentageCompleted = Math.floor((completedTasks / totalTasks) * 100);
-    console.log(percentageCompleted);
+    console.log({message:'percentageCompleted',percentageCompleted});
 
     if (percentageCompleted >= 80) {
       project.status = 'completed';
