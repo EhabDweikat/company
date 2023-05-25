@@ -125,9 +125,12 @@ module.exports.addTask = async (req, res) => {
 
     if (percentageCompleted >= 80) {
       project.status = 'completed';
+    } else if (percentageCompleted >= 40 && percentageCompleted < 80) {
+      project.status = 'pending';
     } else {
-      project.status = 'in progress';
+      project.status = 'overdue';
     }
+    
 
     await project.save();
 

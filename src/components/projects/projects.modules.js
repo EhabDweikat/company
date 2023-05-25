@@ -24,7 +24,7 @@ const schema=Schema({
       },
       status: {
         type: String,
-        enum: ['pending', 'overdue', 'completed','in progress','not started'],
+        enum: ['pending', 'overdue', 'completed','not start'],
         required: true
       },
       createdAt: {
