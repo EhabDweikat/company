@@ -117,17 +117,17 @@ const forgetPassword = async (req, res) => {
       return;
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.emailToken, {
-      expiresIn: "1h",
-    });
+    const verificationCode = generateVerificationCode(); // Generate a random verification code
 
-    const link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/resetPassword/${token}`;
-    const message = `<a href ='${link}'>Click here to reset your password</a>`;
+    user.verificationCode = verificationCode;
+    await user.save();
 
-    const info = await sendEmail(email, "Reset Password", message);
+    const message = `Your verification code for password reset is: ${verificationCode}`;
+
+    const info = await sendEmail(email, "Reset Password - Verification Code", message);
 
     if (info.accepted?.length > 0) {
-      res.status(200).json({ message: "Reset password link sent to email" });
+      res.status(200).json({ message: "Verification code sent to email" });
     } else {
       res.status(500).json({ message: "Error sending email" });
     }
@@ -138,23 +138,18 @@ const forgetPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
-    const { password } = req.body;
+    const { email, verificationCode, password } = req.body;
 
-    const decoded = jwt.verify(token, process.env.emailToken);
-    if (!decoded.id) {
-      res.status(400).json({ message: "Invalid payload" });
-      return;
-    }
+    const user = await userModel.findOne({ email, verificationCode }).select("password");
 
-    const user = await userModel.findOne({ _id: decoded.id }).select("password");
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(404).json({ message: "User not found or verification code is incorrect" });
       return;
     }
 
     bcrypt.hash(password, parseInt(process.env.SALTROUND), async function (err, hash) {
       user.password = hash;
+      //user.verificationCode = undefined; // Clear the verification code after password reset
       await user.save();
       res.status(200).json({ message: "Password reset successfully" });
     });
@@ -162,6 +157,7 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ message: "catch error", error });
   }
 };
- 
-  
+
+
+
   module.exports = { signup, confirmEmail, login, forgetPassword, resetPassword};

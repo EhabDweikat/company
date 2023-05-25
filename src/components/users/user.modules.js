@@ -70,7 +70,7 @@ const schema=Schema({
     },
     verificationCode: {
         type: String,
-        required: true,
+       
       },
 
     balance: {
