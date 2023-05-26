@@ -362,5 +362,21 @@ module.exports.deleteTask = async (req, res) => {
   }
 };
 
+module.exports.getAllTask=async(req,res)=>{
+  try{
+    const tasks=await Task.find();
+    if(!tasks){
+      return res.status(404).json({message:'No tasks found'});
+    }else{
+      res.status(200).json(tasks);
+    }
+
+  }catch(error){
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+
+  }
+
+}
+
       
       

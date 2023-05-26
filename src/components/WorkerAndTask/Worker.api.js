@@ -12,6 +12,7 @@ router.get('/ShowSalaryHistory/:workerId', WorkerServises.getSalaryHistoryForWor
 router.get('/GetAllWorker', WorkerServises.getALLWorker);
 router.get('/getProjectTasks/:projectId', WorkerServises.getProjectTasks);
 router.delete('/delete/:taskId',WorkerServises.deleteTask);
+router.get('/GetAllTask',WorkerServises.getAllTask);
 
 
 
