@@ -54,8 +54,8 @@ const schema=Schema({
 
     role:{
         type:String,
-        enum:['admin','user'],
-        default:'user'
+        enum:['Engineer','Worker'],
+        default:'Engineer'
     },
     isActive:{
         type:Boolean,

@@ -6,10 +6,14 @@ const userModel = require ("../../users/user.modules");
 
 const signup = async (req, res) => {
   try {
-    const { name, email, password, confirmPassword, age, country, balance } = req.body;
+    const { name, email, password, confirmPassword, age, country, balance, role } = req.body;
 
     if (password !== confirmPassword) {
       return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
+    if (!['Engineer', 'Worker'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Available roles are Engineer and Worker' });
     }
 
     const user = await userModel.findOne({ email }).select('email');
@@ -21,12 +25,12 @@ const signup = async (req, res) => {
     const verificationCode = generateVerificationCode(); // Generate a random 4-digit verification code
 
     bcrypt.hash(password, parseInt(process.env.SALTROUND), async function (err, hash) {
-      const newuser = new userModel({ name, email, password: hash, age, country, balance, verificationCode });
+      const newuser = new userModel({ name, email, password: hash, age, country, balance, verificationCode, role });
 
       const token = jwt.sign({ id: newuser._id }, process.env.emailToken, { expiresIn: '1h' });
 
       const link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`;
-      const message = `<a href ='${link}'>verify your email <\a>`;
+      const message = `<a href ='${link}'>verify your email</a>`;
       const messageOne = `Thank you for signing up. Your verification code is: ${verificationCode}`;
 
       const info = await sendEmail(email, `Confirm Email`, message, messageOne);
@@ -42,6 +46,7 @@ const signup = async (req, res) => {
     res.status(500).json({ message: 'catch error', error });
   }
 };
+
 
 const confirmEmail = async (req, res) => {
   try {
@@ -60,7 +65,7 @@ const confirmEmail = async (req, res) => {
     if (user) {
       res.status(200).json({ message: 'Email verified successfully' });
       // Redirect to the login page or any other desired URL
-      return res.redirect(process.env.FURL);
+      //return res.redirect(process.env.FURL);
     } else {
       res.status(404).json({ message: 'User not found or verification code is incorrect' });
     }

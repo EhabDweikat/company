@@ -3,7 +3,7 @@
 const router=require('express').Router();
 const registerController=require('./controller/registarion.js')
 router.post('/signup',registerController.signup);
-router.get('/confirmEmail',registerController.confirmEmail)
+router.post('/confirmEmail',registerController.confirmEmail)
 router.get('/login',registerController.login)
 
 //update password and reset
