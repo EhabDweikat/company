@@ -79,6 +79,7 @@ const generateVerificationCode = () => {
   const code = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
   return code.toString();
 };
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;

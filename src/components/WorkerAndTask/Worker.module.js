@@ -35,6 +35,12 @@ const workerSchema = new mongoose.Schema({
         type: String,
         default: null
       },
+      password:{
+        type:String,
+        require:[true,'password is require'],
+        minlength:[6,'too short password'],
+  
+    },
       latitude: {
         type: Number, // Latitude field added
         required: true,
@@ -106,6 +112,9 @@ const taskSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+
+    
+
 
     latitude: {
       type: Number, // Latitude field added

@@ -64,6 +64,7 @@ module.exports.AddWorker = async (req, res) => {
         phone: req.body.phone,
         salary: req.body.salary,
         media: req.file.filename,
+        password:req.body.password,
         latitude: req.body.latitude,
         longitude: req.body.longitude,
       });
@@ -141,18 +142,29 @@ module.exports.addTask = async (req, res) => {
 };
   
   
-  module.exports.getWorkerTasks = async (req, res) => {
-    const { workerId } = req.params;
-  
-    try {
-      // Find all the tasks assigned to the worker
-      const tasks = await Task.find({ worker: workerId }).populate('worker');
-  
-        res.json({ tasks });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+module.exports.getWorkerTasks = async (req, res) => {
+  const { workerId } = req.params;
+  const { password } = req.body;
+
+  try {
+    const worker = await Worker.findById(workerId);
+
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
     }
-  };
+
+    if (password !== worker.password) {
+      return res.status(401).json({ message: 'Incorrect password' });
+    }
+
+    const tasks = await Task.find({ worker: workerId }).populate('worker');
+
+    res.json({ tasks });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 
   module.exports.updateTaskStatus = async (req, res) => {
     const { status } = req.body;
