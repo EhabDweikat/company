@@ -64,7 +64,6 @@ module.exports.AddWorker = async (req, res) => {
         phone: req.body.phone,
         salary: req.body.salary,
         media: req.file.filename,
-        password:req.body.password,
         latitude: req.body.latitude,
         longitude: req.body.longitude,
       });
@@ -144,17 +143,12 @@ module.exports.addTask = async (req, res) => {
   
 module.exports.getWorkerTasks = async (req, res) => {
   const { workerId } = req.params;
-  const { password } = req.body;
 
   try {
     const worker = await Worker.findById(workerId);
 
     if (!worker) {
       return res.status(404).json({ message: 'Worker not found' });
-    }
-
-    if (password !== worker.password) {
-      return res.status(401).json({ message: 'Incorrect password' });
     }
 
     const tasks = await Task.find({ worker: workerId }).populate('worker');
@@ -166,32 +160,63 @@ module.exports.getWorkerTasks = async (req, res) => {
 };
 
 
-  module.exports.updateTaskStatus = async (req, res) => {
-    const { status } = req.body;
-    const { taskId } = req.params;
-  
-    try {
-      const task = await Task.findByIdAndUpdate(
-        taskId,
-        { status },
-        { new: true }
-      );
-  
-      if (!task) {
-        return res.status(404).json({ error: 'Task not found' });
-      }
-  
-      // Update task status for the project
-      await Project.findOneAndUpdate(
-        { tasks: taskId },
-        { $set: { 'tasks.$.status': status } }
-      );
-  
-      res.json({ message: 'The status of the task has been successfully updated' });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+module.exports.updateTaskStatus = async (req, res) => {
+  const { taskId } = req.params;
+  const { status } = req.body;
+
+  try {
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task Not Found" });
     }
-  };
+
+    const oldStatus = task.status;
+    task.status = status;
+
+    await task.save();
+
+    if (status === "completed" && oldStatus !== "completed") {
+      const project = await Project.findOne({ tasks: taskId });
+      if (project) {
+        if (!project.tasks.includes(taskId)) {
+          project.tasks.push(taskId);
+        }
+
+        const completedTasks = await Promise.all(
+          project.tasks.map(async (taskId) => {
+            const task = await Task.findById(taskId);
+            return task.status === "completed";
+          })
+        );
+
+        const totalTasks = project.tasks.length;
+        const numCompletedTasks = completedTasks.filter((completed) => completed).length;
+
+        project.percentCompleted = Math.floor((numCompletedTasks / totalTasks) * 100);
+
+        if (project.percentCompleted >= 80) {
+          project.status = "completed";
+        } else if (project.percentCompleted >= 40 && project.percentCompleted < 80) {
+          project.status = "pending";
+        } else {
+          project.status = "overdue";
+        }
+
+        await project.save();
+
+        console.log(`Percentage of completed tasks: ${project.percentCompleted}%`);
+      }
+    }
+
+    res.status(200).json({ message: "Task status updated successfully", task });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+
+
   module.exports.addAttendance = async (req, res) => {
     const { workerId, date, present } = req.body;
   

@@ -16,6 +16,9 @@ app.use('/Materials',require('./src/components/materialsAndReview/materials.api'
 app.use('/Chart',require('./src/components/BuyAddToChart/Chart.api'));
 app.use('/Recommandation',require('./src/components/Recomandation/Recomandation.api'));
 app.use('/Worker',require('./src/components/WorkerAndTask/Worker.api'));
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+  });
 
 
 
