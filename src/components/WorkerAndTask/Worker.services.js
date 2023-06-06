@@ -285,56 +285,31 @@ module.exports.updateTaskStatus = async (req, res) => {
 
       module.exports.getSalaryHistoryForWorker = async (req, res) => {
         const { workerId } = req.params;
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
-      
-        const salaryHistory = [];
-      
-        for (let month = 1; month <= currentMonth; month++) {
-          const numTasksCompleted = await Task.countDocuments({
-            worker: workerId,
-            status: 'completed',
-            $expr: {
-              $and: [
-                { $eq: [{ $year: '$endTime' }, currentYear] },
-                { $eq: [{ $month: '$endTime' }, month] },
-              ],
-            },
-          });
-      
-          const salary = await Salary.findOne({
-            worker: workerId,
-            month: month,
-            year: currentYear,
-          });
-      
-          const bonus = {};
-      
-          if (salary) {
-            if (numTasksCompleted >= 5) {
-              bonus.amount = salary.amount * 0.1;
-              bonus.description = 'Bonus for completing 5 or more tasks';
-            }
-      
-            salaryHistory.push({
-              month: month,
-              year: currentYear,
-              amount: salary.amount,
-              bonus: bonus,
-              numTasksCompleted: numTasksCompleted,
-            });
-          } else {
-            salaryHistory.push({
-              month: month,
-              year: currentYear,
-              amount: 0,
-              bonus: bonus,
-              numTasksCompleted: numTasksCompleted,
-            });
-          }
-        }
-      
-        return res.json({ salaryHistory });
+
+  try {
+    const worker = await Worker.findById(workerId);
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+
+    const { name, salary } = worker;
+
+    const attendance = await Attendance.find({ worker: workerId });
+    const totalPresentDays = attendance.filter(record => record.present === true).length;
+
+    const totalSalary = salary * totalPresentDays;
+
+    const report = {
+      workerName: name,
+      totalPresentDays,
+      salaryPerDay: salary,
+      totalSalary,
+    };
+
+    return res.status(200).json({ report });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
       };
 
       module.exports.getALLWorker = async (req, res) => {
