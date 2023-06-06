@@ -85,7 +85,7 @@ module.exports.AddWorker = async (req, res) => {
 
 module.exports.addTask = async (req, res) => {
   const { workerId } = req.params;
-  const { name,description, status, startTime, endTime, reward, discount, latitude, longitude } = req.body;
+  const {  description, status, startTime, endTime, reward, discount, latitude, longitude } = req.body;
 
   try {
     const worker = await Worker.findById(workerId);
@@ -93,14 +93,8 @@ module.exports.addTask = async (req, res) => {
       return res.status(404).json({ message: "Worker Not Found" });
     }
 
-    const project = await Project.findOne({name}).populate('tasks');
-    if (!project) {
-      return res.status(404).json({ message: "Project Not Found" });
-    }
-
     const task = new Task({
       worker: worker._id,
-      project: project._id,
       description,
       status,
       startTime,
@@ -113,32 +107,12 @@ module.exports.addTask = async (req, res) => {
 
     await task.save();
 
-    project.tasks.push(task);
-
-    const totalTasks = project.tasks.length;
-    console.log({message:'totalTasks',totalTasks});
-    const completedTasks = project.tasks.filter(task => task.status === 'completed').length;
-    console.log({message:'completedTasks',completedTasks});
-
-    const percentageCompleted = Math.floor((completedTasks / totalTasks) * 100);
-    console.log({message:'percentageCompleted',percentageCompleted});
-
-    if (percentageCompleted >= 80) {
-      project.status = 'completed';
-    } else if (percentageCompleted >= 40 && percentageCompleted < 80) {
-      project.status = 'pending';
-    } else {
-      project.status = 'overdue';
-    }
-    
-
-    await project.save();
-
     res.status(201).json({ task });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
   
   
 module.exports.getWorkerTasks = async (req, res) => {
@@ -292,12 +266,8 @@ module.exports.updateTaskStatus = async (req, res) => {
       return res.status(404).json({ message: 'Worker not found' });
     }
 
-    const { name, salary } = worker;
-
-    const attendance = await Attendance.find({ worker: workerId });
-    const totalPresentDays = attendance.filter(record => record.present === true).length;
-
-    const totalSalary = salary * totalPresentDays;
+   
+    
 
     const report = {
       workerName: name,
